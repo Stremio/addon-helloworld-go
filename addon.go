@@ -19,19 +19,26 @@ var MANIFEST = Manifest{
 	Resources:	[]string{ "stream" },
 }
 
-// var Resources = [
-// 	Resource{
-// 		Name:	"stream"
-// 		Types:	[]string{ "movie", "series" }
-// 		IdPrefixes:	[]string{ "tt", "hpy"}
-// 	},
-// 	Resource{
-// 		Name:	"catalogs"
-// 		Types:	[ "movie", "series"]
-// 	}
-// ]
+var movieMap map[string]StreamItem
+var seriesMap map[string]StreamItem
+
+func initializeStreamMaps() {
+	movieMap = make( map[string]StreamItem)
+	seriesMap = make( map[string]StreamItem)
+
+	// Movies
+	movieMap["tt0051744"] = StreamItem{ Title: "House on Haunted Hill", InfoHash: "9f86563ce2ed86bbfedd5d3e9f4e55aedd660960" }
+	movieMap["tt1254207"] = StreamItem{ Title: "Big Buck Bunny", Url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" }
+	movieMap["tt0031051"] = StreamItem{ Title: "The Arizona Kid", YtId: "m3BKVSpP80s" }
+	movieMap["tt0137523"] = StreamItem{ Title: "Fight Club", ExternalUrl: "https://www.netflix.com/watch/26004747" }
+
+	//Series
+	seriesMap["tt0051744:1:1"] = StreamItem{ Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6" }
+}
 
 func main() {
+	initializeStreamMaps()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", HomeHandler)
 	r.HandleFunc("/manifest.json", ManifestHandler)
@@ -77,12 +84,20 @@ func ManifestHandler(w http.ResponseWriter, r *http.Request) {
 
 func StreamHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	stream := StreamItem{}
 
-	if params["type"] != "movie" && params["type"] != "series" {
+	if params["type"] == "movie" {
+		stream = movieMap[params["id"]]
+	} else if params["type"] == "series" {
+		stream = seriesMap[params["id"]] // XXX: season, episode
+	} else {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	jr := `{"streams": [{"title": "Big Buck Bunny Go", "type": "movie", "url": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" }]}`
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([] byte(jr))
+	w.Write([] byte(`{"streams": [`))
+	streamJson, _ := json.Marshal(stream)
+	w.Write(streamJson)
+	w.Write([] byte(`]}`))
 }
