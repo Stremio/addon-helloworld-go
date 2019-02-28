@@ -2,23 +2,22 @@ package main
 
 import (
 	"encoding/json"
-	"net/http"
-	"log"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"log"
+	"net/http"
 )
 
-
-var CATALOG_ID =  "Hello, Go"
+var CATALOG_ID = "Hello, Go"
 
 var MANIFEST = Manifest{
-	Id:		"org.stremio.helloworld.go",
-	Version:	"0.0.1",
-	Name:		"Hello World Go Addon",
-	Description:	"Sample addon made with gorilla/mux package providing a few public domain movies",
-	Types:		[]string{"movie", "series"},
-	Catalogs:	[]CatalogItem{},
-	Resources:	[]string{ "stream", "catalog" },
+	Id:          "org.stremio.helloworld.go",
+	Version:     "0.0.1",
+	Name:        "Hello World Go Addon",
+	Description: "Sample addon made with gorilla/mux package providing a few public domain movies",
+	Types:       []string{"movie", "series"},
+	Catalogs:    []CatalogItem{},
+	Resources:   []string{"stream", "catalog"},
 }
 
 var movieMap map[string]StreamItem
@@ -30,29 +29,29 @@ var seriesMetaMap map[string]MetaItem
 var METAHUB_BASE_URL = "https://images.metahub.space/poster/medium/"
 
 func initializeMaps() {
-	movieMap = make( map[string]StreamItem)
-	seriesMap = make( map[string]StreamItem)
+	movieMap = make(map[string]StreamItem)
+	seriesMap = make(map[string]StreamItem)
 
 	// Movies
-	movieMap["tt0051744"] = StreamItem{ Title: "House on Haunted Hill", InfoHash: "9f86563ce2ed86bbfedd5d3e9f4e55aedd660960" }
-	movieMap["tt1254207"] = StreamItem{ Title: "Big Buck Bunny", Url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" }
-	movieMap["tt0031051"] = StreamItem{ Title: "The Arizona Kid", YtId: "m3BKVSpP80s" }
-	movieMap["tt0137523"] = StreamItem{ Title: "Fight Club", ExternalUrl: "https://www.netflix.com/watch/26004747" }
+	movieMap["tt0051744"] = StreamItem{Title: "House on Haunted Hill", InfoHash: "9f86563ce2ed86bbfedd5d3e9f4e55aedd660960"}
+	movieMap["tt1254207"] = StreamItem{Title: "Big Buck Bunny", Url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"}
+	movieMap["tt0031051"] = StreamItem{Title: "The Arizona Kid", YtId: "m3BKVSpP80s"}
+	movieMap["tt0137523"] = StreamItem{Title: "Fight Club", ExternalUrl: "https://www.netflix.com/watch/26004747"}
 
 	//Series
-	seriesMap["tt0051744:1:1"] = StreamItem{ Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6" }
+	seriesMap["tt0051744:1:1"] = StreamItem{Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
 
 	// Meta
-	movieMetaMap = make( map[string]MetaItem)
-	seriesMetaMap = make( map[string]MetaItem)
+	movieMetaMap = make(map[string]MetaItem)
+	seriesMetaMap = make(map[string]MetaItem)
 
-	movieMetaMap["tt0051744"] = MetaItem{ Name: "House on Haunted Hill", Genres: []string{"Horror", "Mystery"} }
-	movieMetaMap["tt1254207"] = MetaItem{ Name: "Big Buck Bunny", Genres: []string{ "Animation", "Short", "Comedy" } }
-	movieMetaMap["tt0031051"] = MetaItem{ Name: "The Arizona Kid", Genres: []string{"Music", "War", "Western" } }
-	movieMetaMap["tt0137523"] = MetaItem{ Name: "Fight Club", Genres: []string{ "Drama" } }
+	movieMetaMap["tt0051744"] = MetaItem{Name: "House on Haunted Hill", Genres: []string{"Horror", "Mystery"}}
+	movieMetaMap["tt1254207"] = MetaItem{Name: "Big Buck Bunny", Genres: []string{"Animation", "Short", "Comedy"}}
+	movieMetaMap["tt0031051"] = MetaItem{Name: "The Arizona Kid", Genres: []string{"Music", "War", "Western"}}
+	movieMetaMap["tt0137523"] = MetaItem{Name: "Fight Club", Genres: []string{"Drama"}}
 
 	//Series
-	seriesMetaMap["tt0051744:1:1"] = MetaItem{ Name: "Pioneer One",  Genres: []string{ "Drama" } }
+	seriesMetaMap["tt0051744:1:1"] = MetaItem{Name: "Pioneer One", Genres: []string{"Drama"}}
 }
 
 func main() {
@@ -89,10 +88,8 @@ func main() {
 	}
 }
 
-
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	type jsonObj map[string]interface{}
-
 
 	jr, _ := json.Marshal(jsonObj{"Path": '/'})
 	w.Header().Set("Content-Type", "application/json")
@@ -119,15 +116,15 @@ func StreamHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([] byte(`{"streams": [`))
+	w.Write([]byte(`{"streams": [`))
 	streamJson, _ := json.Marshal(stream)
 	w.Write(streamJson)
-	w.Write([] byte(`]}`))
+	w.Write([]byte(`]}`))
 }
 
 func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	metaMap := make( map[string]MetaItem)
+	metaMap := make(map[string]MetaItem)
 
 	for _, item := range MANIFEST.Catalogs {
 		if params["id"] == item.Id && params["type"] == item.Type {
@@ -149,14 +146,14 @@ func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([] byte(`{"metas": `))
+	w.Write([]byte(`{"metas": `))
 
 	metas := []MetaItemJson{}
 	for metaKey, metaValue := range metaMap {
 		item := MetaItemJson{
-			Id: metaKey,
-			Type: params["type"],
-			Name: metaValue.Name,
+			Id:     metaKey,
+			Type:   params["type"],
+			Name:   metaValue.Name,
 			Genres: metaValue.Genres,
 			Poster: METAHUB_BASE_URL + metaKey + "/img",
 		}
@@ -165,5 +162,5 @@ func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 
 	catalogJson, _ := json.Marshal(metas)
 	w.Write(catalogJson)
-	w.Write([] byte(`}`))
+	w.Write([]byte(`}`))
 }
