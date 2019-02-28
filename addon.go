@@ -79,10 +79,9 @@ func main() {
 	})
 	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET"})
+
 	// Listen
-
 	err := http.ListenAndServe("0.0.0.0:3592", handlers.CORS(originsOk, headersOk, methodsOk)(r))
-
 	if err != nil {
 		log.Fatalf("Listen: %s", err.Error())
 	}
