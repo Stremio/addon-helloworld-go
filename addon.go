@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-//	"fmt"
 	"net/http"
 	"log"
 	"github.com/gorilla/handlers"
@@ -167,27 +166,4 @@ func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 	catalogJson, _ := json.Marshal(metas)
 	w.Write(catalogJson)
 	w.Write([] byte(`}`))
-}
-
-func MetaHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	meta := MetaItem{}
-
-	log.Printf("CatalogHandler")
-	log.Printf(params["id"])
-
-	if params["type"] == "movie" {
-		meta = movieMetaMap[params["id"]]
-	} else if params["type"] == "series" {
-		meta = seriesMetaMap[params["id"]] // XXX: season, episode
-	} else {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([] byte(`{"meta": [`))
-	streamJson, _ := json.Marshal(meta)
-	w.Write(streamJson)
-	w.Write([] byte(`]}`))
 }

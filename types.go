@@ -1,21 +1,7 @@
 package main
 
-type Resource struct {
-    Name	string			`json:"name"`
-    Types	[]string		`json:"type"`
-    IdPrefixes	[]string		`json:"idPrefixes,omitempty"`
-}
-
-type StreamItemType uint8
-
-const (
-    MOVIE   StreamItemType = 0
-    SERIES  StreamItemType = 1
-)
-
 type StreamItem struct {
     Title	string			`json:"title"`
-//     Type	StreamItemType		`json:"-"`
     InfoHash	string			`json:"infoHash,omitempty"`
     FileIdx	uint8			`json:"fileIdx,omitempty"`
     Url		string			`json:"url,omitempty"`
