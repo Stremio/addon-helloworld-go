@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var CATALOG_ID = "Hello, Go"
@@ -40,7 +41,7 @@ func initializeMaps() {
 	movieMap["tt0137523"] = StreamItem{Title: "Fight Club", ExternalUrl: "https://www.netflix.com/watch/26004747"}
 
 	//Series
-	seriesMap["tt0051744"] = StreamItem{Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
+	seriesMap["tt1748166"] = StreamItem{Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
 
 	// Meta
 	movieMetaMap = make(map[string]MetaItem)
@@ -52,7 +53,7 @@ func initializeMaps() {
 	movieMetaMap["tt0137523"] = MetaItem{Name: "Fight Club", Genres: []string{"Drama"}}
 
 	//Series
-	seriesMetaMap["tt0051744"] = MetaItem{Name: "Pioneer One", Genres: []string{"Drama"}}
+	seriesMetaMap["tt1748166"] = MetaItem{Name: "Pioneer One", Genres: []string{"Drama"}}
 }
 
 func main() {
@@ -107,7 +108,13 @@ func StreamHandler(w http.ResponseWriter, r *http.Request) {
 	if params["type"] == "movie" {
 		stream = movieMap[params["id"]]
 	} else if params["type"] == "series" {
-		stream = seriesMap[params["id"]] // XXX: season, episode
+		itemIds := strings.Split(params["id"], ":")
+		showID, seasonId, episodeId := itemIds[0], itemIds[1], itemIds[2]
+		stream = seriesMap[showID] // XXX: season, episode
+		// silence the compiler
+		if seasonId + episodeId != string(stream.FileIdx) {
+			log.Println("Return stream for episode 1")
+		}
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		return
