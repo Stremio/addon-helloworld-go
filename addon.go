@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"encoding/json"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -35,25 +35,34 @@ func initializeMaps() {
 	seriesMap = make(map[string]StreamItem)
 
 	// Movies
-	movieMap["tt0051744"] = StreamItem{Title: "House on Haunted Hill", InfoHash: "9f86563ce2ed86bbfedd5d3e9f4e55aedd660960"}
-	movieMap["tt1254207"] = StreamItem{Title: "Big Buck Bunny", Url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"}
+	movieMap["tt0051744"] = StreamItem{Title: "House on Haunted Hill",
+		InfoHash: "9f86563ce2ed86bbfedd5d3e9f4e55aedd660960"}
+	movieMap["tt1254207"] = StreamItem{Title: "Big Buck Bunny",
+		Url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"}
 	movieMap["tt0031051"] = StreamItem{Title: "The Arizona Kid", YtId: "m3BKVSpP80s"}
-	movieMap["tt0137523"] = StreamItem{Title: "Fight Club", ExternalUrl: "https://www.netflix.com/watch/26004747"}
+	movieMap["tt0137523"] = StreamItem{Title: "Fight Club",
+		ExternalUrl: "https://www.netflix.com/watch/26004747"}
 
 	//Series
-	seriesMap["tt1748166"] = StreamItem{Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
+	seriesMap["tt1748166"] = StreamItem{Title: "Pioneer One",
+		InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
 
 	// Meta
 	movieMetaMap = make(map[string]MetaItem)
 	seriesMetaMap = make(map[string]MetaItem)
 
-	movieMetaMap["tt0051744"] = MetaItem{Name: "House on Haunted Hill", Genres: []string{"Horror", "Mystery"}}
-	movieMetaMap["tt1254207"] = MetaItem{Name: "Big Buck Bunny", Genres: []string{"Animation", "Short", "Comedy"}, Poster: "https://peach.blender.org/wp-content/uploads/poster_bunny_small.jpg"}
-	movieMetaMap["tt0031051"] = MetaItem{Name: "The Arizona Kid", Genres: []string{"Music", "War", "Western"}}
-	movieMetaMap["tt0137523"] = MetaItem{Name: "Fight Club", Genres: []string{"Drama"}}
+	movieMetaMap["tt0051744"] = MetaItem{Name: "House on Haunted Hill",
+		Genres: []string{"Horror", "Mystery"}}
+	movieMetaMap["tt1254207"] = MetaItem{Name: "Big Buck Bunny", Genres: []string{"Animation", "Short", "Comedy"},
+		Poster: "https://peach.blender.org/wp-content/uploads/poster_bunny_small.jpg"}
+	movieMetaMap["tt0031051"] = MetaItem{Name: "The Arizona Kid",
+		Genres: []string{"Music", "War", "Western"}}
+	movieMetaMap["tt0137523"] = MetaItem{Name: "Fight Club",
+		Genres: []string{"Drama"}}
 
 	//Series
-	seriesMetaMap["tt1748166"] = MetaItem{Name: "Pioneer One", Genres: []string{"Drama"}}
+	seriesMetaMap["tt1748166"] = MetaItem{Name: "Pioneer One",
+		Genres: []string{"Drama"}}
 }
 
 func main() {
@@ -112,7 +121,7 @@ func StreamHandler(w http.ResponseWriter, r *http.Request) {
 		showID, seasonId, episodeId := itemIds[0], itemIds[1], itemIds[2]
 		stream = seriesMap[showID] // XXX: season, episode
 		// silence the compiler
-		if seasonId + episodeId != string(stream.FileIdx) {
+		if seasonId+episodeId != string(stream.FileIdx) {
 			log.Println("Return stream for episode 1")
 		}
 	} else {
@@ -150,9 +159,6 @@ func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{"metas": `))
-
 	metas := []MetaItemJson{}
 	for metaKey, metaValue := range metaMap {
 		item := MetaItemJson{
@@ -166,10 +172,9 @@ func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 			item.Poster = metaValue.Poster
 		}
 		metas = append(metas, item)
-		fmt.Print(item)
 	}
 
-	catalogJson, _ := json.Marshal(metas)
+	w.Header().Set("Content-Type", "application/json")
+	catalogJson, _ := json.Marshal(&jsonObj{"metas": metas})
 	w.Write(catalogJson)
-	w.Write([]byte(`}`))
 }
