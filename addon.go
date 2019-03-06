@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"encoding/json"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -39,19 +40,19 @@ func initializeMaps() {
 	movieMap["tt0137523"] = StreamItem{Title: "Fight Club", ExternalUrl: "https://www.netflix.com/watch/26004747"}
 
 	//Series
-	seriesMap["tt0051744:1:1"] = StreamItem{Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
+	seriesMap["tt0051744"] = StreamItem{Title: "Pioneer One", InfoHash: "07a9de9750158471c3302e4e95edb1107f980fa6"}
 
 	// Meta
 	movieMetaMap = make(map[string]MetaItem)
 	seriesMetaMap = make(map[string]MetaItem)
 
 	movieMetaMap["tt0051744"] = MetaItem{Name: "House on Haunted Hill", Genres: []string{"Horror", "Mystery"}}
-	movieMetaMap["tt1254207"] = MetaItem{Name: "Big Buck Bunny", Genres: []string{"Animation", "Short", "Comedy"}}
+	movieMetaMap["tt1254207"] = MetaItem{Name: "Big Buck Bunny", Genres: []string{"Animation", "Short", "Comedy"}, Poster: "https://peach.blender.org/wp-content/uploads/poster_bunny_small.jpg"}
 	movieMetaMap["tt0031051"] = MetaItem{Name: "The Arizona Kid", Genres: []string{"Music", "War", "Western"}}
 	movieMetaMap["tt0137523"] = MetaItem{Name: "Fight Club", Genres: []string{"Drama"}}
 
 	//Series
-	seriesMetaMap["tt0051744:1:1"] = MetaItem{Name: "Pioneer One", Genres: []string{"Drama"}}
+	seriesMetaMap["tt0051744"] = MetaItem{Name: "Pioneer One", Genres: []string{"Drama"}}
 }
 
 func main() {
@@ -81,15 +82,13 @@ func main() {
 	methodsOk := handlers.AllowedMethods([]string{"GET"})
 
 	// Listen
-	err := http.ListenAndServe("0.0.0.0:3592", handlers.CORS(originsOk, headersOk, methodsOk)(r))
+	err := http.ListenAndServe("0.0.0.0:3593", handlers.CORS(originsOk, headersOk, methodsOk)(r))
 	if err != nil {
 		log.Fatalf("Listen: %s", err.Error())
 	}
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	type jsonObj map[string]interface{}
-
 	jr, _ := json.Marshal(jsonObj{"Path": '/'})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jr)
@@ -156,7 +155,11 @@ func CatalogHandler(w http.ResponseWriter, r *http.Request) {
 			Genres: metaValue.Genres,
 			Poster: METAHUB_BASE_URL + metaKey + "/img",
 		}
+		if metaValue.Poster != "" {
+			item.Poster = metaValue.Poster
+		}
 		metas = append(metas, item)
+		fmt.Print(item)
 	}
 
 	catalogJson, _ := json.Marshal(metas)

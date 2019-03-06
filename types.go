@@ -1,5 +1,7 @@
 package main
 
+type jsonObj map[string]interface{}
+
 type StreamItem struct {
 	Title       string `json:"title"`
 	InfoHash    string `json:"infoHash,omitempty"`
@@ -12,6 +14,7 @@ type StreamItem struct {
 type MetaItem struct {
 	Name   string   `json:"name"`
 	Genres []string `json:"genres,omitempty"`
+	Poster string   `json:"-"`
 }
 
 type MetaItemJson struct {
