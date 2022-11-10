@@ -32,7 +32,7 @@ var seriesMetaMap map[string]stremio.MetaItem
 
 var METAHUB_BASE_URL = "https://images.metahub.space/poster/medium/"
 
-func initializeMaps() {
+func init() {
 	movieMap = make(map[string]stremio.StreamItem)
 	seriesMap = make(map[string]stremio.StreamItem)
 
@@ -68,7 +68,6 @@ func initializeMaps() {
 }
 
 func main() {
-	initializeMaps()
 
 	MANIFEST.Catalogs = append(MANIFEST.Catalogs, stremio.CatalogItem{"movie", CATALOG_ID})
 	MANIFEST.Catalogs = append(MANIFEST.Catalogs, stremio.CatalogItem{"series", CATALOG_ID})
